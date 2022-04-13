@@ -1,4 +1,4 @@
-package com.revature.model;
+package com.Brian.model;
 
 import java.sql.Date;
 import java.util.ArrayList;

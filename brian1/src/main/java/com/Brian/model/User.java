@@ -12,19 +12,24 @@ public abstract class User {
 	// personal information for customer
 	private String firstName;
 	private String lastName;
-	private String address;
-	private Date birthday;
+	private String street;
+	private String city;
+	private String state;
+	private int zip;
 	
-	public User(int userId, String userName, String password, String firstName, String lastName, String address,
-			Date birthday) {
+	public User() {
+		super();
+	}
+	
+	public User(int userId, String userName, String password, String firstName, String lastName, String street,
+			String city, String state, int zip) {
 		super();
 		this.userId = userId;
 		this.userName = userName;
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.address = address;
-		this.birthday = birthday;
+		this.street = street;
 	}
 
 	public int getUserId() {
@@ -67,21 +72,38 @@ public abstract class User {
 		this.lastName = lastName;
 	}
 
-	public String getAddress() {
-		return address;
+	public String getStreet() {
+		return street;
 	}
 
-	public void setAddress(String address) {
-		this.address = address;
+	public void setStreet(String address) {
+		this.street = address;
 	}
 
-	public Date getBirthday() {
-		return birthday;
+	public String getCity() {
+		return city;
 	}
 
-	public void setBirthday(Date birthday) {
-		this.birthday = birthday;
+	public void setCity(String city) {
+		this.city = city;
 	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public int getZip() {
+		return zip;
+	}
+
+	public void setZip(int zip) {
+		this.zip = zip;
+	}
+
 	
 	
 }

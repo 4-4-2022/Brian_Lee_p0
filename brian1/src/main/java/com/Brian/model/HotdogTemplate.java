@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class HotdogTemplate {
-	protected String[] buns = {"plain","sesame","garlic","all-seasoned", "poppy seed"};
-	protected String[] meat = {"all beef", "standard", "foie grais", "rattlesnake", "elk", "venison", "chicken", "pork", "polish", "bratwurst"}; 
+	protected String[] buns = {"plain","sesame","garlic","all-seasoned", "poppy seed", "brioche"};
+	protected String[] meat = {"all beef", "standard", "foie grais", "rattlesnake", "elk", "venison", "chicken", "pork", "polish", 
+			"bratwurst"}; 
 	protected String[] condiments = {"ketchup", "yellow mustard", "celery salt",  "mayonnaise", "hollandaise", "dijon mustard",
 			"asian zing", "sriracha"};
-	protected String[] toppings = {"grilled onions", "raw onions", "steamed onions", "sports peppers", "coleslaw", "sauerkraut", "grilled peppers",
+	protected String[] toppings = {"grilled onions", "raw onions", "steamed onions", "sports peppers", "coleslaw", 
+			"sauerkraut", "grilled peppers",
 			"relish", "chili", "jalepenos", "diced tomatoes"};
 	protected String[] cheese = {"american", "swiss", "nacho"};
 	

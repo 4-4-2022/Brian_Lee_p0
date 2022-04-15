@@ -3,6 +3,7 @@ package com.Brian.model;
 import java.sql.Date;
 
 public class Employee extends User{
+	public int accessLevel = 3;
 	
 	public Employee(int userId, String userName, String password, String firstName, String lastName, String street,
 			String city, String state, int zip) {

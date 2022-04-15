@@ -11,9 +11,11 @@ import com.Brian.util.ConnectionFactory;
 import com.Brian.util.ResourceCloser;
 
 public class Customer extends User{
+	public ArrayList<Account> accounts;
+	public int accessLevel = 1;
 
 	public Customer(int userId, String userName, String password, String firstName, String lastName, String street, String city,
-			String state, int zip, Date birthday) {
+			String state, int zip) {
 		super(userId, userName, password, firstName, lastName, street, city, state, zip);
 		
 	}
@@ -52,6 +54,27 @@ public class Customer extends User{
 			ResourceCloser.closeStatement(stmt);
 		}
 	}
+	
+	public Customer findOneCustomer() {
+		return null;
+	}
+	
+	public ArrayList<Customer> findAllCustomers() {
+		return null;
+		
+	}
+	
+	public Customer updateCustomer() {
+		return null;
+	}
+	
+	public Customer deleteCustomer() {
+		return null;
+	}
+	
+	// method for retrieving all owned accounts
+	
+	// method for retrieving all "managed" accounts
 	
 
 	

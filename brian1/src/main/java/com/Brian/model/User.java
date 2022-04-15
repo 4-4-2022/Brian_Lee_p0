@@ -16,6 +16,7 @@ public abstract class User {
 	private String city;
 	private String state;
 	private int zip;
+	public int accessLevel = 0;
 	
 	public User() {
 		super();
@@ -30,6 +31,8 @@ public abstract class User {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.street = street;
+		this.state = state;
+		this.zip = zip;
 	}
 
 	public int getUserId() {

@@ -5,6 +5,7 @@ public class Hotdog {
 	private String hotdogStyle;
 	private int calories;
 	private float cost;
+	private String description;
 	private static int hotdogCount;
 	
 	public Hotdog() {
@@ -12,11 +13,13 @@ public class Hotdog {
 		hotdogCount++;
 	}
 	
-	public Hotdog(int hotdogId, String hotdogStyle, int calories, float cost) {
+	public Hotdog(int hotdogId, String hotdogStyle, int calories, float cost, String description) {
 		this.hotdogId = hotdogId;
 		this.hotdogStyle = hotdogStyle;
 		this.calories = calories;
 		this.cost = cost;
+		this.description = description;
+		
 		hotdogCount++;
 	}
 
@@ -50,6 +53,16 @@ public class Hotdog {
 
 	public void setCost(float cost) {
 		this.cost = cost;
+	}
+	
+	
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public static int getHotdogCount() {

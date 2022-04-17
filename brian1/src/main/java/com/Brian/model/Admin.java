@@ -11,6 +11,23 @@ public class Admin extends Employee{
 		super(userId, userName, password, firstName, lastName, street, city, state, zip);
 		// TODO Auto-generated constructor stub
 	}
+
+	public Admin() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public int getAccessLevel() {
+		return accessLevel;
+	}
+
+	public void setAccessLevel(int accessLevel) {
+		this.accessLevel = accessLevel;
+	}
+
+	@Override
+	public String toString() {
+		return "Admin [accessLevel=" + accessLevel + "]";
+	}
 	
 	// method 
 

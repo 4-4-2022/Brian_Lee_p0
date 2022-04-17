@@ -17,6 +17,15 @@ public class Customer extends User{
 	public Customer(int userId, String userName, String password, String firstName, String lastName, String street, String city,
 			String state, int zip) {
 		super(userId, userName, password, firstName, lastName, street, city, state, zip);
+		this.userId = userId;
+		this.userName = userName;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.street = street;
+		this.city = city;
+		this.state = state;
+		this.zip = zip;
 		
 	}
 
@@ -32,7 +41,7 @@ public class Customer extends User{
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		//insert into customers value();
-		final String SQL = "insert into customers values(?,?,?,?,?,?,?,?,?)";
+		final String SQL = "insert into users values(default,?,?,?,?,?,?,?,?,1)";
 		
 		try {
 			conn = ConnectionFactory.getConnection();
@@ -45,10 +54,10 @@ public class Customer extends User{
 			stmt.setString(6, customer.getCity());
 			stmt.setString(7, customer.getState());
 			stmt.setInt(8, customer.getZip());
-			stmt.execute();
+			stmt.executeQuery();
 			
 		}catch(SQLException e){
-			e.printStackTrace();
+			return;
 		}finally {
 			ResourceCloser.closeConnection(conn);
 			ResourceCloser.closeStatement(stmt);
@@ -71,6 +80,9 @@ public class Customer extends User{
 	public Customer deleteCustomer() {
 		return null;
 	}
+	
+	
+
 	
 	// method for retrieving all owned accounts
 	

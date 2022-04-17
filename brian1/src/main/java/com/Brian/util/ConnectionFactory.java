@@ -28,14 +28,12 @@ public class ConnectionFactory {
 		Connection conn = null;
 		try {
 		conn = DriverManager.getConnection(
-				System.getenv("db_url"), 
-				System.getenv("db_username"), 
-				System.getenv("db_password")
+				System.getenv("db_url_p0"), 
+				System.getenv("db_username_p0"), 
+				System.getenv("db_password_p0")
 			);
 		}catch(SQLException e) {
 			e.printStackTrace();
-		}finally {
-			ResourceCloser.closeConnection(conn);
 		}
 		
 		return conn;

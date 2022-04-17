@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,8 +15,8 @@ import com.Brian.util.ResourceCloser;
 
 public class hotdogRespositoryImp implements hotdogRepository{
 
-	public Set<Hotdog> findAllHotdogs() {
-		Set<Hotdog> hotdogs = new HashSet<Hotdog>();
+	public ArrayList<Hotdog> findAllHotdogs() {
+		ArrayList<Hotdog> hotdogs = new ArrayList<Hotdog>();
 		
 		Connection conn = null;
 		Statement stmt = null;
@@ -35,7 +36,8 @@ public class hotdogRespositoryImp implements hotdogRepository{
 						set.getInt(1),						
 						set.getString(2),
 						set.getInt(3),
-						set.getFloat(4)
+						set.getFloat(4),
+						set.getString(5)
 					));
 			}
 		}catch(SQLException e) {
@@ -45,6 +47,7 @@ public class hotdogRespositoryImp implements hotdogRepository{
 			ResourceCloser.closeResultSet(set);
 			ResourceCloser.closeStatement(stmt);
 		}
+
 		
 		return hotdogs;
 	}

@@ -73,10 +73,12 @@ public class Hotdog {
 		Hotdog.hotdogCount = hotdogCount;
 	}
 
+
+
 	@Override
 	public String toString() {
-		return "Hotdog [hotdogId=" + hotdogId + ", hotdogStyle=" + hotdogStyle + ", calories=" + calories + ", cost="
-				+ cost + "]";
+		return "Hotdog [Id= " + hotdogId + ", " + hotdogStyle + ", " + calories+" calories" + ", price= "
+				+ cost + ", " + description + "]";
 	}
 
 	@Override
@@ -116,3 +118,5 @@ public class Hotdog {
 	
 	
 }
+
+

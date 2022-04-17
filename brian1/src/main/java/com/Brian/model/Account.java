@@ -31,10 +31,17 @@ public class Account {
 		this.ownerId = ownerId;
 	}
 
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(accountId, funds, managers, ownerId);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + accountId;
+		result = prime * result + Float.floatToIntBits(funds);
+		result = prime * result + ownerId;
+		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -44,9 +51,15 @@ public class Account {
 		if (getClass() != obj.getClass())
 			return false;
 		Account other = (Account) obj;
-		return accountId == other.accountId && funds == other.funds && Objects.equals(managers, other.managers)
-				&& ownerId == other.ownerId;
+		if (accountId != other.accountId)
+			return false;
+		if (Float.floatToIntBits(funds) != Float.floatToIntBits(other.funds))
+			return false;
+		if (ownerId != other.ownerId)
+			return false;
+		return true;
 	}
+
 	public int getAccountId() {
 		return accountId;
 	}
@@ -114,7 +127,7 @@ public class Account {
 	public void save() {
 		Connection conn = null;
 		PreparedStatement stmt = null;
-		//insert into customers value();
+
 		final String SQL = "insert into accounts values(default,?,?)";
 		
 		try {
@@ -131,19 +144,121 @@ public class Account {
 			ResourceCloser.closeStatement(stmt);
 		}
 	}
+
+	
 	// closing account method for owner and admins
+	public static void closeAccount(Account account) {
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		final String SQL = "delete from accounts where account_id = ?";
+		
+		
+		try {
+			conn = ConnectionFactory.getConnection();
+			stmt = conn.prepareStatement(SQL);
+			stmt.setInt(1, account.accountId);
+			stmt.executeQuery();
+			
+		}catch(SQLException e){
+			return;
+		}finally {
+			ResourceCloser.closeConnection(conn);
+			ResourceCloser.closeStatement(stmt);
+		}
+	}
 	
 	// method for decreasing amount of funds
-	public float reduceFunds(float amount) {
+	public float reduceFunds(Account account, float amount) {
 		// access database, get funds, reduce funds by amount
+		if (amount < 0) {
+			System.out.println("Can not reduce by negative amount");
+			return account.funds;
+		}
+		if ( account.funds - amount >= 0 && amount >= 0) {
+			float newAmt = this.funds - amount;
+			Connection conn = null;
+			PreparedStatement stmt = null;
+			final String SQL = "update accounts set account_funds = ? where account_id = ?";
+			try {
+				conn = ConnectionFactory.getConnection();
+				stmt = conn.prepareStatement(SQL);
+				stmt.setFloat(1, newAmt);
+				stmt.setInt(2, account.accountId);
+				
+				stmt.executeQuery();
+				account.funds = newAmt;
+			}catch(SQLException e){
+				e.printStackTrace();
+			}finally {
+				ResourceCloser.closeConnection(conn);
+				ResourceCloser.closeStatement(stmt);
+			}
+			
+			
+			
+			
+			return this.funds - amount;
+		}
+		else if(account.funds - amount < 0){
+			System.out.println("Account Id: "+account.getAccountId()+" has Insufficient funds");
+			return account.funds;
+		}
 		
-		return funds;
+		return account.funds;
 	}
 	
 	// method for increasing amount of funds
-	
+	public float addFunds(Account account, float amount) {
+		// access database, get funds, reduce funds by amount
+		if (amount < 0) {
+			System.out.println("Can not add by negative amount");
+			return account.funds;
+		}
+		else if ( account.funds - amount >= 0 && amount >= 0) {
+			float newAmt = this.funds + amount;
+			Connection conn = null;
+			PreparedStatement stmt = null;
+			final String SQL = "update accounts set account_funds = ? where account_id = ?";
+			try {
+				conn = ConnectionFactory.getConnection();
+				stmt = conn.prepareStatement(SQL);
+				stmt.setFloat(1, newAmt);
+				stmt.setInt(2, account.accountId);
+				
+				stmt.executeQuery();
+				account.funds = newAmt;
+			}catch(SQLException e){
+				e.printStackTrace();
+			}finally {
+				ResourceCloser.closeConnection(conn);
+				ResourceCloser.closeStatement(stmt);
+			}
+			return this.funds - amount;
+		}
+
+		
+		return account.funds;
+	}
 	// method for transferring funds between accounts
-	
+	public static void transferFunds(Account account, Account otherAccount, float amount) {
+		if(amount == 0 ) {
+			System.out.println("Nothing done, 0 amount was specified.");
+		}
+		else if(amount > 0) {
+			otherAccount.reduceFunds(otherAccount, amount);
+			account.addFunds(account, amount);
+			
+		}
+		else if (amount < 0) {
+			float absAmount = Math.abs(amount);
+			account.reduceFunds(account, absAmount);
+			otherAccount.addFunds(otherAccount, absAmount);
+		}
+		else {
+			System.out.println("Could not transfer");
+		}
+		
+	}
 	// method to add managers
 	
 	// method to remove managers

@@ -7,8 +7,11 @@ import com.Brian.model.Account;
 import com.Brian.model.Admin;
 import com.Brian.model.Customer;
 import com.Brian.model.Employee;
+import com.Brian.model.Hotdog;
 import com.Brian.model.User;
+import com.Brian.respository.HotdogRespositoryImp;
 
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 
 public class AppUI {
@@ -52,7 +55,7 @@ public class AppUI {
 		if (user.accessLevel == 1) {
 			user = new Customer(user.getUserId(), user.getUserName(), user.getPassword(), user.getFirstName(), user.getLastName(), user.getStreet(),
 					user.getCity(),  user.getState(), user.getZip());
-			printCustomerMain(user);
+			
 		}
 		else if (user.getAccessLevel() == 3) {
 			user = new Employee(user.getUserId(), user.getUserName(), user.getPassword(), user.getFirstName(), user.getLastName(), user.getStreet(),
@@ -65,16 +68,18 @@ public class AppUI {
 		return user;
 	}
 	
-	public static void mainMenu(Scanner scanner, Customer customer) {
+	public static void mainMenu(Scanner scanner, User user) {
+		Customer customer = (Customer) user;
+		printCustomerMain(customer);
 		int userSelection =AppUI.handleUserSelection(scanner);
+		
 		switch (userSelection) {
 		case 1:
-			System.out.println("Accounts and stuff");
-			scanner.nextLine();
+			AppUI.printOwnedAccounts(customer, scanner);
 			break;
 		case 2:
 			AppUI.createAccountMenu(scanner, customer);
-//			AppUI.createAccount(scanner.nextLine());
+			AppUI.mainMenu(scanner, user);
 			break;
 		case 3:
 			System.out.println("xfer balance");
@@ -159,7 +164,92 @@ public class AppUI {
 		account.setFunds(funds);
 		account.setOwnerId(customer.getUserId());
 		account.save();
+		AppUI.printCustomerMain(customer);
 		return account;
+	}
+	
+	public static void printOwnedAccounts(Customer customer, Scanner scanner) {
+		ArrayList<Account> accounts =Customer.findAllOwned(customer);
+		int listNum = 1;
+		System.out.println("Accounts Owned:");
+		for(Account account: accounts) {
+			System.out.println("[ "+listNum+" ID:" +account.getAccountId()+", Funds: "+ account.getFunds()+" ]");
+			listNum++;
+		}
+		System.out.println("Please select an Account by List#");
+		int userSelection = handleUserSelection(scanner);
+		Account selectedAccount = accounts.get(userSelection - 1);
+		AppUI.accountMenu(customer, scanner, selectedAccount);
+	}
+	
+	public static void accountMenu(Customer customer, Scanner scanner, Account account) {
+		System.out.println("Welcome "+ customer.getFirstName() + "\n"
+				+"What would you like to do?\n"
+				+ "1.) Order Hotdogs!\n"
+				+ "2.) Add Funds\n"
+				+ "3.) Remove Funds\n"
+				+ "4.) Add Secondary User"
+				+ "5.) Exit");
+		int userSelection = handleUserSelection(scanner);
+		switch (userSelection) {
+		case 1:
+			AppUI.printHotdogs();
+			break;
+		case 2:
+			// adding funds
+			break;
+		case 3:
+			// close this account
+			scanner.nextLine();
+			break;
+		case 4:
+			// add secondary user menu
+		case 5:
+			// byebye
+			scanner.nextLine();
+			break;
+
+		default:
+			break;
+		}
+	}
+	
+	public static void printHotdogs() {
+		HotdogRespositoryImp hotdogRepo = new HotdogRespositoryImp();
+		ArrayList<Hotdog> hotdogs = hotdogRepo.findAllHotdogs();
+		for(Hotdog hotdog : hotdogs) {
+			System.out.println(hotdog.toString());
+		}
+	}
+	
+	public static void orderMenu(Customer customer, Scanner scanner, Account account) {
+		System.out.println(
+				"What would you like to do?\n"
+				+ "1.) Place Order\n"
+				+ "2.) Nevermind, I changed my mind\n"
+				+ "3.) Order a Sampler (1 of each)\n"
+				+ "4.) Exit"
+				);
+		int userSelection = handleUserSelection(scanner);
+		switch (userSelection) {
+		case 1:
+			// order
+			break;
+		case 2:
+			// adding funds
+			break;
+		case 3:
+			// close this account
+			scanner.nextLine();
+			break;
+		case 4:
+			AppUI.sayBye();
+			scanner.close();
+			break;
+
+		default:
+			break;
+		}
 	}
 	
 	

@@ -11,7 +11,7 @@ import com.Brian.model.Customer;
 import com.Brian.model.Hotdog;
 import com.Brian.model.HotdogTemplate;
 import com.Brian.model.User;
-import com.Brian.respository.hotdogRespositoryImp;
+import com.Brian.respository.HotdogRespositoryImp;
 
 
 public class Driver {
@@ -20,20 +20,20 @@ public class Driver {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
 		boolean isUserInterested = true;
-		hotdogRespositoryImp newRepo = new hotdogRespositoryImp();
+		HotdogRespositoryImp newRepo = new HotdogRespositoryImp();
 		ArrayList<Hotdog> hotdogs = newRepo.findAllHotdogs();
 		
 
 		
 		while (isUserInterested) {
 			AppUI.printWelcomeMenu();
-			int userSelection =AppUI.handleUserSelection(scanner); //handle input mismatch for zip(int)
+			int userSelection =AppUI.handleUserSelection(scanner);
 
 			switch (userSelection) {
 			case 1:
-				Customer customer = (Customer) AppUI.loginUser(scanner);
-				if( customer != null) {
-					AppUI.mainMenu(scanner, customer);
+				User user = AppUI.loginUser(scanner);
+				if( user != null) {
+					AppUI.mainMenu(scanner, user);
 				}
 				else {
 					System.out.println("Incorrect User Information");

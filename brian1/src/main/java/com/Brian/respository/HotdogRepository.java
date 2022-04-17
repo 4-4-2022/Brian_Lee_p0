@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.Brian.model.Hotdog;
 
-public interface hotdogRepository {
+public interface HotdogRepository {
 	public ArrayList<Hotdog> findAllHotdogs();
 	public Hotdog findHotdogByStyle(String flavor);
 	public Set<Hotdog> findHotdogsByStyle(String...flavors);

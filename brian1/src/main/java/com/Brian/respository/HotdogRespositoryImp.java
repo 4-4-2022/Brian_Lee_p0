@@ -13,7 +13,7 @@ import com.Brian.model.Hotdog;
 import com.Brian.util.ConnectionFactory;
 import com.Brian.util.ResourceCloser;
 
-public class hotdogRespositoryImp implements hotdogRepository{
+public class HotdogRespositoryImp implements HotdogRepository{
 
 	public ArrayList<Hotdog> findAllHotdogs() {
 		ArrayList<Hotdog> hotdogs = new ArrayList<Hotdog>();

@@ -3,6 +3,7 @@ package com.Brian.model;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -27,6 +28,20 @@ public class Customer extends User{
 		this.state = state;
 		this.zip = zip;
 		
+	}
+	public Customer(int userId, String userName, String password, String firstName, String lastName, String street, String city,
+			String state, int zip, int accessLevel) {
+		super(userId, userName, password, firstName, lastName, street, city, state, zip);
+		this.userId = userId;
+		this.userName = userName;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.street = street;
+		this.city = city;
+		this.state = state;
+		this.zip = zip;
+		this.accessLevel = accessLevel;
 	}
 
 	public Customer() {
@@ -84,8 +99,36 @@ public class Customer extends User{
 	
 
 	
-	// method for retrieving all owned accounts
-	
+	// Finding all accounts owned by single user
+	public static ArrayList<Account> findAllOwned(Customer customer) {
+		ArrayList<Account> accounts = new ArrayList<Account>();
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		final String SQL = "select * from accounts where account_owner = ?";
+		
+		try {
+			conn = ConnectionFactory.getConnection();
+			stmt = conn.prepareStatement(SQL);
+			stmt.setInt(1, customer.getUserId());
+			set = stmt.executeQuery();
+			while(set.next()) {
+				accounts.add(new Account(
+						set.getInt(1),						
+						set.getFloat(2),
+						set.getInt(3)
+					));
+			}
+			
+			
+		}catch(SQLException e){
+			e.getStackTrace();
+		}finally {
+			ResourceCloser.closeConnection(conn);
+			ResourceCloser.closeStatement(stmt);
+		}
+		return accounts;
+	}
 	// method for retrieving all "managed" accounts
 	
 

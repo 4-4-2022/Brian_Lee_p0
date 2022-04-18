@@ -28,6 +28,7 @@ public class User {
 	protected String state;
 	protected int zip;
 	public int accessLevel = 0;
+	public ArrayList<Account> accountsMgr;
 	
 	public User() {
 		super();
@@ -146,9 +147,14 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [userId=" + userId + ", userName=" + userName + ", password=" + password + ", firstName="
+		return "User [userId=" + userId + ", userName=" + userName + ", firstName="
 				+ firstName + ", lastName=" + lastName + ", street=" + street + ", city=" + city + ", state=" + state
 				+ ", zip=" + zip + ", accessLevel=" + accessLevel + "]";
+	}
+	
+	public String toStringSafe() {
+		return "User [ UserName = " + userName +  ", First Name = "+ firstName + ", lastName = " + lastName +  " ]";
+				
 	}
 
 	public static User findOne(String username, String password) {
@@ -157,12 +163,13 @@ public class User {
 		PreparedStatement stmt = null;
 		ResultSet set = null;
 		
-		final String SQL = "select * from users where user_name = ?";
+		final String SQL = "select * from users where user_name = ? and user_password = ?";
 		
 		try {
 			conn = ConnectionFactory.getConnection();
 			stmt = conn.prepareStatement(SQL);
 			stmt.setString(1, username);
+			stmt.setString(2, password);
 			set = stmt.executeQuery();
 			
 			while(set.next()) {
@@ -190,8 +197,7 @@ public class User {
 			return users.get(0);
 		}
 		else {
-			System.out.println("no bueno, user not found");
-			return users.get(0);
+			return null;
 		}
 	}
 

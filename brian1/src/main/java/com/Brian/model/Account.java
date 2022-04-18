@@ -1,5 +1,6 @@
 package com.Brian.model;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,6 +15,7 @@ public class Account {
 	protected int accountId;
 	protected float funds;
 	protected int ownerId;
+	public ArrayList<Customer> managers;
 	
 	public Account(int funds, int ownerId) {
 		super();
@@ -37,7 +39,7 @@ public class Account {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + accountId;
-		result = prime * result + Float.floatToIntBits(funds);
+		result = prime * result + Float.floatToRawIntBits(funds);
 		result = prime * result + ownerId;
 		return result;
 	}
@@ -53,7 +55,7 @@ public class Account {
 		Account other = (Account) obj;
 		if (accountId != other.accountId)
 			return false;
-		if (Float.floatToIntBits(funds) != Float.floatToIntBits(other.funds))
+		if (Float.floatToRawIntBits(funds) != Float.floatToRawIntBits(other.funds))
 			return false;
 		if (ownerId != other.ownerId)
 			return false;
@@ -69,14 +71,24 @@ public class Account {
 	public float getFunds() {
 		return funds;
 	}
-	public void setFunds(float funds) {
-		this.funds = funds;
+	public void setFunds(float f) {
+		this.funds = f;
 	}
 	public int getOwnerId() {
 		return ownerId;
 	}
 	public void setOwnerId(int ownerId) {
 		this.ownerId = ownerId;
+	}
+	
+	
+
+	public ArrayList<Customer> getManagers() {
+		return managers;
+	}
+
+	public void setManagers(ArrayList<Customer> managers) {
+		this.managers = managers;
 	}
 
 	@Override
@@ -185,7 +197,7 @@ public class Account {
 				stmt.setFloat(1, newAmt);
 				stmt.setInt(2, account.accountId);
 				
-				stmt.executeQuery();
+				stmt.executeUpdate();
 				account.funds = newAmt;
 			}catch(SQLException e){
 				e.printStackTrace();
@@ -225,7 +237,7 @@ public class Account {
 				stmt.setFloat(1, newAmt);
 				stmt.setInt(2, account.accountId);
 				
-				stmt.executeQuery();
+				stmt.executeUpdate();
 				account.funds = newAmt;
 			}catch(SQLException e){
 				e.printStackTrace();
@@ -260,9 +272,13 @@ public class Account {
 		
 	}
 	// method to add managers
-	
+	public void addManager(Customer customer) {
+		ManagerList.addManager(this, customer);
+	}
 	// method to remove managers
-	
+	public void removeManager(Customer customer) {
+		ManagerList.removeManager(this, customer);
+	}
 	
 
 	

@@ -14,6 +14,8 @@ import com.Brian.util.ResourceCloser;
 public class Customer extends User{
 	public ArrayList<Account> accounts;
 	public int accessLevel = 1;
+	// list of accounts managed/owned by customer
+	protected ArrayList<Account> managedAccounts;
 
 	public Customer(int userId, String userName, String password, String firstName, String lastName, String street, String city,
 			String state, int zip) {
@@ -47,9 +49,23 @@ public class Customer extends User{
 	public Customer() {
 		super();
 	}
+	
+	public Customer(User user) {
+		super();
+		this.userId = user.getUserId();
+		this.userName = user.getUserName();
+		this.password = user.getPassword();
+		this.firstName = user.getFirstName();
+		this.lastName = user.getLastName();
+		this.street = user.getStreet();
+		this.city = user.getCity();
+		this.state = user.getState();
+		this.zip = user.getZip();
+		this.accessLevel = user.getAccessLevel();
+		this.managedAccounts = this.findAllManaged(this);
+	}
 
-	// list of accounts managed/owned by customer
-	protected ArrayList<Account> managedAccounts;
+
 	
 	
 	public void save(Customer customer) {
@@ -130,7 +146,49 @@ public class Customer extends User{
 		return accounts;
 	}
 	// method for retrieving all "managed" accounts
+	public ArrayList<Account> findAllManaged(Customer customer){		
+		return ManagerList.findAllManaged(customer);
+	}
 	
+	public static Customer findByUserName(String username) {
+		ArrayList<Customer> customers = new ArrayList();
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		final String SQL = "select * from users where user_name = ?";
+		try {
+			conn = ConnectionFactory.getConnection();
+			stmt = conn.prepareStatement(SQL);
+			stmt.setString(1, username);
+			set = stmt.executeQuery();
+			while(set.next()) {
+				customers.add(new Customer(
+						set.getInt(1),
+						set.getString(2),
+						set.getString(3),
+						set.getString(4),
+						set.getString(5),
+						set.getString(6),
+						set.getString(7),
+						set.getString(8),
+						set.getInt(9),
+						set.getInt(10)
+					));
+			}
+			
+			
+		}catch(SQLException e){
+			e.getStackTrace();
+		}finally {
+			ResourceCloser.closeConnection(conn);
+			ResourceCloser.closeStatement(stmt);
+		}
+		if(customers.size() > 0) {
+			return customers.get(0);
+		}
+		else
+			return null;
+	}
 
 	
 }

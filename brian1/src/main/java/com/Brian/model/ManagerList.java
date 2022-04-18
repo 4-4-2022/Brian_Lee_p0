@@ -14,6 +14,7 @@ import com.Brian.util.ResourceCloser;
 public class ManagerList {
 	public int accountId;
 	public ArrayList<Customer> managers;
+	public ArrayList<Account> managedAccounts;
 	
 	
 	public ManagerList(Account account) {
@@ -41,6 +42,8 @@ public class ManagerList {
 	public void setManagers(ArrayList<Customer> managers) {
 		this.managers = managers;
 	}
+	
+	
 
 
 	@Override
@@ -53,12 +56,14 @@ public class ManagerList {
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		ResultSet set = null;
-		final String SQL = "select * from managers where account_id = ?";
+		final String SQL = "select users.user_id, user_name , user_password , user_fname , "
+				+ "user_lname , user_street, user_city, user_state , user_zip , user_accesslevel  "
+				+ "from managers join users on managers.user_id = users.user_id  where account_id = ?";
 		try {
 			conn = ConnectionFactory.getConnection();
 			stmt = conn.prepareStatement(SQL);
 			stmt.setInt(1, account.getAccountId());
-			set = stmt.executeQuery(SQL);
+			set = stmt.executeQuery();
 			while(set.next()) {
 				managers.add(new Customer(
 						set.getInt(1),
@@ -86,7 +91,7 @@ public class ManagerList {
 		return managers;
 	}
 	
-	public void addManager(Customer customer){
+	public static void addManager(Account account, Customer customer){
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		final String SQL = "insert into managers values(?,?)";
@@ -94,8 +99,8 @@ public class ManagerList {
 			conn = ConnectionFactory.getConnection();
 			stmt = conn.prepareStatement(SQL);
 			stmt.setInt(1, customer.getUserId());
-			stmt.setInt(2, this.getAccountId());
-			stmt.executeQuery(SQL);
+			stmt.setInt(2, account.getAccountId());
+			stmt.executeUpdate();
 
 		}catch(SQLException e) {
 			e.printStackTrace();
@@ -106,7 +111,7 @@ public class ManagerList {
 
 
 	}
-	public void removeManager(Customer customer){
+	public static void removeManager(Account account, Customer customer){
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		final String SQL = "delete from managers where user_id = ? AND account_id = ?";
@@ -114,8 +119,8 @@ public class ManagerList {
 			conn = ConnectionFactory.getConnection();
 			stmt = conn.prepareStatement(SQL);
 			stmt.setInt(1, customer.getUserId());
-			stmt.setInt(2, this.getAccountId());
-			stmt.executeQuery(SQL);
+			stmt.setInt(2, account.getAccountId());
+			stmt.executeUpdate();
 
 		}catch(SQLException e) {
 			e.printStackTrace();
@@ -126,6 +131,39 @@ public class ManagerList {
 
 
 	}
+	
+	public static ArrayList<Account> findAllManaged(Customer customer){
+		ArrayList<Account> accounts = new ArrayList();
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		final String SQL = "select accounts.account_id, account_funds, account_owner from managers "
+				+ "join accounts on managers.account_id = accounts.account_id where user_id = ?";
+		try {
+			conn = ConnectionFactory.getConnection();
+			stmt = conn.prepareStatement(SQL);
+			stmt.setInt(1, customer.getUserId());
+			set = stmt.executeQuery();
+			while(set.next()) {
+				accounts.add(new Account(
+						set.getInt(1),
+						set.getFloat(2),
+						set.getInt(3)
+					));
+			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			ResourceCloser.closeConnection(conn);
+			ResourceCloser.closeResultSet(set);
+			ResourceCloser.closeStatement(stmt);
+		}
+
+		
+		
+		return accounts;
+	}
+	
 	
 }
 

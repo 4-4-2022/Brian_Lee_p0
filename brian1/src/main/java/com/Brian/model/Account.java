@@ -16,6 +16,9 @@ public class Account {
 	protected float funds;
 	protected int ownerId;
 	public ArrayList<Customer> managers;
+	protected String ownerUserName;
+	protected String ownerFirstName;
+	protected String ownerLastName;
 	
 	public Account(int funds, int ownerId) {
 		super();
@@ -33,6 +36,17 @@ public class Account {
 		this.ownerId = ownerId;
 	}
 
+
+	public Account(int accountId, float funds, int ownerId, String ownerUserName, String ownerFirstName, String ownerLastName) {
+		super();
+		this.accountId = accountId;
+		this.funds = funds;
+		this.ownerId = ownerId;
+
+		this.ownerUserName = ownerUserName;
+		this.ownerFirstName = ownerFirstName;
+		this.ownerLastName = ownerLastName;
+	}
 
 	@Override
 	public int hashCode() {
@@ -83,6 +97,30 @@ public class Account {
 	
 	
 
+	public String getOwnerUserName() {
+		return ownerUserName;
+	}
+
+	public void setOwnerUserName(String ownerUserName) {
+		this.ownerUserName = ownerUserName;
+	}
+
+	public String getOwnerFirstName() {
+		return ownerFirstName;
+	}
+
+	public void setOwnerFirstName(String ownerFirstName) {
+		this.ownerFirstName = ownerFirstName;
+	}
+
+	public String getOwnerLastName() {
+		return ownerLastName;
+	}
+
+	public void setOwnerLastName(String ownerLastName) {
+		this.ownerLastName = ownerLastName;
+	}
+
 	public ArrayList<Customer> getManagers() {
 		return managers;
 	}
@@ -94,6 +132,11 @@ public class Account {
 	@Override
 	public String toString() {
 		return "Account [accountId=" + accountId + ", funds=" + funds + ", ownerId=" + ownerId+ "]";
+	}
+	
+	public String toStringEmp() {
+		return "Account [accountId=" + accountId + ", funds=" + funds + ", owner: username=" + ownerUserName+ ", first name=" 
+	+ ownerFirstName+ ", last name=" + ownerLastName+ "]";
 	}
 	// finding one account
 	public static Account findOne(int accountId) {
@@ -134,6 +177,52 @@ public class Account {
 		}
 	}
 	
+	//Finding all accounts
+	public static ArrayList<Account> findAll() {
+		ArrayList<Account> accounts = new ArrayList<Account>();
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		
+		final String SQL = "select account_id, account_funds, account_owner, user_name, user_fname, user_lname from accounts join "
+				+ "users on account_owner = users.user_id";
+		
+		try {
+			conn = ConnectionFactory.getConnection();
+			stmt = conn.prepareStatement(SQL);
+			set = stmt.executeQuery();
+			
+			while(set.next()) {
+				accounts.add(new Account(
+						set.getInt(1),
+						set.getFloat(2),
+						set.getInt(3),
+						set.getString(4),
+						set.getString(5),
+						set.getString(6)
+						));
+			}
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}finally {
+					ResourceCloser.closeConnection(conn);
+					ResourceCloser.closeStatement(stmt);
+			}
+		
+		if (accounts.size() < 1) {
+			System.out.println("No accounts found");
+			return accounts;
+		}
+		else { return accounts;}
+			
+			
+		
+	}
+	
+
+	
+	
+	
 	// creating and saving accounts
 	
 	public void save() {
@@ -161,6 +250,7 @@ public class Account {
 	// closing account method for owner and admins
 	public static void closeAccount(Account account) {
 		Connection conn = null;
+		ManagerList.removeManagerWithAccount(account);
 		PreparedStatement stmt = null;
 		final String SQL = "delete from accounts where account_id = ?";
 		
@@ -168,8 +258,8 @@ public class Account {
 		try {
 			conn = ConnectionFactory.getConnection();
 			stmt = conn.prepareStatement(SQL);
-			stmt.setInt(1, account.accountId);
-			stmt.executeQuery();
+			stmt.setInt(1, account.getAccountId());
+			stmt.executeUpdate();
 			
 		}catch(SQLException e){
 			return;
@@ -180,14 +270,14 @@ public class Account {
 	}
 	
 	// method for decreasing amount of funds
-	public float reduceFunds(Account account, float amount) {
+	public Account reduceFunds(Account account, float amount) {
 		// access database, get funds, reduce funds by amount
 		if (amount < 0) {
 			System.out.println("Can not reduce by negative amount");
-			return account.funds;
+			return account;
 		}
-		if ( account.funds - amount >= 0 && amount >= 0) {
-			float newAmt = this.funds - amount;
+		if ( account.getFunds() - amount >= 0 && amount >= 0) {
+			float newAmt = this.getFunds() - amount;
 			Connection conn = null;
 			PreparedStatement stmt = null;
 			final String SQL = "update accounts set account_funds = ? where account_id = ?";
@@ -198,36 +288,32 @@ public class Account {
 				stmt.setInt(2, account.accountId);
 				
 				stmt.executeUpdate();
-				account.funds = newAmt;
+				account.setFunds(newAmt);
 			}catch(SQLException e){
 				e.printStackTrace();
 			}finally {
 				ResourceCloser.closeConnection(conn);
 				ResourceCloser.closeStatement(stmt);
 			}
-			
-			
-			
-			
-			return this.funds - amount;
+			return account;
 		}
 		else if(account.funds - amount < 0){
 			System.out.println("Account Id: "+account.getAccountId()+" has Insufficient funds");
-			return account.funds;
+			return account;
 		}
 		
-		return account.funds;
+		return account;
 	}
 	
 	// method for increasing amount of funds
-	public float addFunds(Account account, float amount) {
+	public Account addFunds(Account account, float amount) {
 		// access database, get funds, reduce funds by amount
 		if (amount < 0) {
 			System.out.println("Can not add by negative amount");
-			return account.funds;
+			return account;
 		}
-		else if ( account.funds - amount >= 0 && amount >= 0) {
-			float newAmt = this.funds + amount;
+		else {
+			float newAmt = account.getFunds() + amount;
 			Connection conn = null;
 			PreparedStatement stmt = null;
 			final String SQL = "update accounts set account_funds = ? where account_id = ?";
@@ -238,18 +324,17 @@ public class Account {
 				stmt.setInt(2, account.accountId);
 				
 				stmt.executeUpdate();
-				account.funds = newAmt;
+				account.setFunds(newAmt);
 			}catch(SQLException e){
 				e.printStackTrace();
 			}finally {
 				ResourceCloser.closeConnection(conn);
 				ResourceCloser.closeStatement(stmt);
 			}
-			return this.funds - amount;
+			return account;
 		}
 
 		
-		return account.funds;
 	}
 	// method for transferring funds between accounts
 	public static void transferFunds(Account account, Account otherAccount, float amount) {
@@ -280,7 +365,11 @@ public class Account {
 		ManagerList.removeManager(this, customer);
 	}
 	
+	
+
+}
+	
 
 	
 	
-}
+

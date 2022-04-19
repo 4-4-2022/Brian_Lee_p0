@@ -17,13 +17,71 @@ import java.util.InputMismatchException;
 
 public class AppUI {
 	
+	public static void appStart() {
+		
+		Scanner scanner = new Scanner(System.in);
+		boolean isUserInterested = true;
+		HotdogRespositoryImp newRepo = new HotdogRespositoryImp();
+		ArrayList<Hotdog> hotdogs = newRepo.findAllHotdogs();
+		int userSelection;
+
+		
+		
+			AppUI.printWelcomeMenu();
+			try {
+				while (isUserInterested) {
+				userSelection = AppUI.handleUserSelection(scanner);
+				switch (userSelection) {
+				case 1:
+					User user = AppUI.loginUser(scanner);
+					
+					if( user != null && user.getAccessLevel() == 1) {
+						AppUI.mainMenu(scanner, user);
+					}
+					else if ( user != null && user.getAccessLevel() == 3) {
+
+						AppUIEmployee.employeeMain(user, scanner);
+					}
+					else if ( user != null && user.getAccessLevel() == 4) {
+						
+						AppUIEmployee.adminMain(user, scanner);
+					}
+					else {
+						
+						System.out.println("Incorrect User Information");
+						appStart();
+					}
+					
+					break;
+				case 2:
+					AppUI.createCustomerAccount(scanner);
+					break;
+				case 3:
+					AppUI.sayBye();
+					isUserInterested = false;
+					break;
+				default:
+					break;
+				}
+			}
+			scanner.close();
+			}
+			catch(Exception exception){
+				
+			}
+			
+	}
+
+	
+	
+	
 	
 	public static void printWelcomeMenu() {
 		System.out.println("Welcome to the Dog House\n"
 				+ "Please Log in or register!\n"
 				+ "1.) Login\n"
 				+ "2.) Register\n"
-				+ "3.) Main Menu");
+				+ "3.) Exit");
 	}
 	
 	public static void sayBye() {
@@ -40,42 +98,44 @@ public class AppUI {
 		scanner.nextLine(); 
 		return userSelection;
 	}
+	public static float handleUserFloat(Scanner scanner) {
+		float userInput = 0;
+		try {
+			userInput = scanner.nextFloat();
+		}catch(InputMismatchException e) {
+			System.out.println("Sorry, that is not a valid number.");
+		}
+		scanner.nextLine(); 
+		return userInput;
+	}
 	
 	public static User loginUser(Scanner scanner) {
+		// user input
 		String userName;
 		String password;
-		// Add validation for login. Check credentials.
+		// prompts
 		System.out.println("Enter your user information: ");
 		System.out.println("User Name: ");
 		userName = scanner.nextLine();
 
 		System.out.println("Password: ");
 		password = scanner.nextLine();
+		
+		// sql query. returns an instance of user if username is found.  null if it is not.
 		User user = User.findOne(userName, password);
-		if(user != null && password == user.getPassword()) {
-			if (user.getAccessLevel() == 1) {
-				user = new Customer(user.getUserId(), user.getUserName(), user.getPassword(), user.getFirstName(), user.getLastName(), user.getStreet(),
-						user.getCity(),  user.getState(), user.getZip());
-				
-			}
-			else if (user.getAccessLevel() == 3) {
-				user = new Employee(user.getUserId(), user.getUserName(), user.getPassword(), user.getFirstName(), user.getLastName(), user.getStreet(),
-						user.getCity(),  user.getState(), user.getZip());
-			}
-			else if (user.getAccessLevel() == 4) {
-				user = new Admin(user.getUserId(), user.getUserName(), user.getPassword(), user.getFirstName(), user.getLastName(), user.getStreet(),
-						user.getCity(),  user.getState(), user.getZip());
-			}
-			return user;
+		// If else statements for checking user.accessLevel to direct to proper set of menus.
+		return user;
 		}
-		else {
-			return user;
-		}
-	}
+	
 	
 	public static void mainMenu(Scanner scanner, User user) {
 		Customer customer = new Customer(user);
-		
+		ArrayList<Account> accounts =Customer.findAllOwned(customer);
+		System.out.println("Accounts Owned:");
+		for(Account account: accounts) {
+			System.out.println("[ "+" ID:" +account.getAccountId()+", Funds: "+ account.getFunds()+"  ]");
+			
+		}
 		printCustomerMain(customer);
 		int userSelection =AppUI.handleUserSelection(scanner);
 		
@@ -88,14 +148,18 @@ public class AppUI {
 			AppUI.mainMenu(scanner, user);
 			break;
 		case 3:
-			System.out.println("xfer balance not yet implemented");
+			AppUI.transferBalance(customer, scanner);
 			break;
 		case 4:
-			System.out.println("Manage other accounts not yet implemented");
+			AppUI.manageMenu(customer, scanner);
+			break;
 		case 5:
 			AppUI.sayBye();
+			AppUI.appStart();
 			break;
 		default:
+			System.out.println("Not a valid selection");
+			AppUI.mainMenu(scanner, user);
 			break;
 		}
 	}
@@ -109,14 +173,8 @@ public class AppUI {
 		account.save();
 	}
 	
-	public static Employee loginEmployee(Scanner scanner) {
-		Employee employee = new Employee();
-		// Add validation for login. Check credentials.
-		System.out.println("Enter your new user account information: ");
-		System.out.println("User Name: ");
-		employee.setUserName(scanner.nextLine());
-		System.out.println("Password: ");
-		employee.setPassword(scanner.nextLine());
+	public static Employee loginEmployee(User user, Scanner scanner) {
+		Employee employee = new Employee(user);
 		
 		
 		
@@ -162,6 +220,9 @@ public class AppUI {
 				+ "5.) Main Menu");
 	}
 	
+
+	
+	
 	public static Account createAccount(Customer customer, float funds) {
 		Account account = new Account();
 		account.setFunds(funds);
@@ -181,11 +242,19 @@ public class AppUI {
 		}
 		System.out.println("Please select an Account by List#");
 		int userSelection = handleUserSelection(scanner);
-		Account selectedAccount = accounts.get(userSelection - 1);
-		AppUI.accountMenu(customer, scanner, selectedAccount);
+		if (userSelection < 1 || userSelection > accounts.size()) {
+			System.out.println("Invalid #, please try again.");
+			AppUI.printOwnedAccounts(customer, scanner);
+		}
+		else {
+			Account selectedAccount = accounts.get(userSelection - 1);
+			AppUI.accountMenu(customer, scanner, selectedAccount);
+		}
+
 	}
 	
 	public static void accountMenu(Customer customer, Scanner scanner, Account account) {
+		System.out.println(account.toString());
 		System.out.println("Welcome "+ customer.getFirstName() + "\n"
 				+"What would you like to do?\n"
 				+ "1.) View Hotdogs!\n"
@@ -218,9 +287,12 @@ public class AppUI {
 			break;
 		case 5:
 			AppUI.sayBye();
+			AppUI.appStart();
 			break;
 
 		default:
+			System.out.println("Not a valid selection");
+			AppUI.accountMenu(customer, scanner, account);
 			break;
 		}
 	}
@@ -279,9 +351,12 @@ public class AppUI {
 			break;
 		case 4:
 			AppUI.sayBye();
+			AppUI.appStart();
 			break;
 
 		default:
+			System.out.println("Not a valid selection");
+			AppUI.orderMenu(customer, scanner, account);
 			break;
 		}
 	}
@@ -312,7 +387,7 @@ public class AppUI {
 						account.addManager(secondUser);
 						AppUI.secondaryUserMenu(customer, scanner, account);
 					}else {
-						System.out.println("User does not exist. Checking for accuracy");
+						System.out.println("User does not exist. Check for accuracy");
 						AppUI.secondaryUserMenu(customer, scanner, account);
 					}
 					
@@ -327,7 +402,7 @@ public class AppUI {
 						account.removeManager(secondUser2);
 						AppUI.secondaryUserMenu(customer, scanner, account);
 					}else {
-						System.out.println("User does not exist. Checking for accuracy");
+						System.out.println("User does not exist. Check for accuracy");
 						AppUI.secondaryUserMenu(customer, scanner, account);
 					}
 					break;
@@ -336,9 +411,12 @@ public class AppUI {
 					break;
 				case 4:
 					AppUI.sayBye();
+					AppUI.appStart();
 					break;
 
 				default:
+					System.out.println("Not a valid selection");
+					AppUI.secondaryUserMenu(customer, scanner, account);
 					break;
 				}
 				
@@ -362,6 +440,132 @@ public class AppUI {
 				System.out.println("Not a valid quantity, returning to order menu.");
 				AppUI.orderMenu(customer, scanner, account);
 			}
+		}
+	}
+	
+	public static void transferBalance(Customer customer, Scanner scanner) {
+		ArrayList<Account> accounts = Customer.findAllOwned(customer);
+		if (accounts.size() < 2) {
+			System.out.println("You don't own more than 1 account and funds transfer is unavailable.");
+			AppUI.mainMenu(scanner, customer);
+		}
+		int listNum = 1;
+		System.out.println("Accounts Owned:");
+		for(Account account: accounts) {
+			System.out.println("[ "+listNum+" ID:" +account.getAccountId()+", Funds: "+ account.getFunds()+" ]");
+			listNum++;
+		}
+		System.out.println("Please select an Account by List#");
+		int userSelection = handleUserSelection(scanner);
+
+		if (userSelection < 1 || userSelection > accounts.size()) {
+			System.out.println("Invalid #, please try again.");
+			AppUI.printOwnedAccounts(customer, scanner);
+		}
+		else {
+			Account selectedAccount = accounts.get(userSelection - 1);
+			System.out.println("How much would you like to transfer from this account?");
+			float totalAmount = handleUserFloat(scanner);
+			accounts.remove(userSelection-1);
+			int listNum2 = 1;
+			for(Account account: accounts) {
+				System.out.println("[ "+listNum2+" ID:" +account.getAccountId()+", Funds: "+ account.getFunds()+" ]");
+				listNum++;
+			}
+			System.out.println("Which account would you like the money transferred to?");
+			int userSelection2 = handleUserSelection(scanner);
+			if (accounts.size() < 1) {
+				AppUI.mainMenu(scanner, customer);
+			}
+			else if (userSelection2 < 1 || userSelection2 > accounts.size()) {
+				listNum2 = 1;
+				System.out.println("Invalid #, please try again.");
+				for(Account account: accounts) {
+					System.out.println("[ "+listNum2+" ID:" +account.getAccountId()+", Funds: "+ account.getFunds()+" ]");
+					listNum++;
+				}
+			}
+			else {
+				Account otherAccount = accounts.get(userSelection2-1);
+				selectedAccount.reduceFunds(selectedAccount, totalAmount);
+				otherAccount.addFunds(otherAccount, totalAmount);
+				AppUI.mainMenu(scanner, customer);
+			}
+		}
+		
+	}
+	public static void manageMenu(Customer customer, Scanner scanner) {
+		ArrayList<Account> managedAccounts = ManagerList.findAllManaged(customer);
+		int listNum = 1;
+		for(Account account : managedAccounts) {
+			System.out.println("List# "+listNum+" "+account.toString());
+			listNum++;
+		}
+		System.out.println("Which account would you like to use?");
+		
+		int userSelection =AppUI.handleUserSelection(scanner);
+		
+		if (userSelection < 1 || userSelection > managedAccounts.size()) {
+			System.out.println("Invalid #, please try again.");
+			manageMenu(customer, scanner);
+		}
+		else {
+			Account selectedAccount = managedAccounts.get(userSelection - 1);
+			AppUI.orderMenuManager(customer, scanner, selectedAccount);
+		}
+		
+	}
+	
+	public static void orderMenuManager(Customer customer, Scanner scanner, Account account) {
+		HotdogRespositoryImp hotdogRepo = new HotdogRespositoryImp();
+		ArrayList<Hotdog> hotdogs = hotdogRepo.findAllHotdogs();
+		System.out.println(account.toString());
+		System.out.println(
+				"What would you like to do?\n"
+				+ "1.) Order Hotdogs!\n"
+				+ "2.) Nevermind, I changed my mind\n"
+				+ "3.) Order a Sampler (1 of each)\n"
+				+ "4.) Main Menu"
+				);
+		int userSelection = handleUserSelection(scanner);
+		switch (userSelection) {
+		case 1:
+			AppUI.orderingHotdogs(customer, scanner, account, hotdogs);
+			break;
+		case 2:
+			AppUI.mainMenu(scanner, customer);
+			break;
+		case 3:
+
+			float sum = 0;
+			for(Hotdog hotdog : hotdogs) {
+				sum += hotdog.getCost();
+			}
+			System.out.println("Total cost will be: $" +sum+"\n"
+					+ "Would you like to proceed?\n"
+					+ "1.) Yes\n"
+					+ "2.) No");
+			int confirm = handleUserSelection(scanner);
+			switch (confirm) {
+			case 1:
+				account.reduceFunds(account, sum);
+				System.out.println("Thank you for your order!");
+				AppUI.orderMenuManager(customer,scanner,account);
+				break;
+			case 2:
+				AppUI.orderMenuManager(customer, scanner, account);
+				break;
+			}
+			break;
+		case 4:
+			AppUI.sayBye();
+			AppUI.appStart();
+			break;
+
+		default:
+			System.out.println("Not a valid selection");
+			AppUI.orderMenuManager(customer, scanner, account);
+			break;
 		}
 	}
 	

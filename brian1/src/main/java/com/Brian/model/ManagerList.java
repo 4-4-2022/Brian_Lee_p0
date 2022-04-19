@@ -132,6 +132,46 @@ public class ManagerList {
 
 	}
 	
+	public static void removeManagerWithUser(User user){
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		final String SQL = "delete from managers where user_id = ?";
+		try {
+			conn = ConnectionFactory.getConnection();
+			stmt = conn.prepareStatement(SQL);
+			stmt.setInt(1, user.getUserId());
+			stmt.executeUpdate();
+
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			ResourceCloser.closeConnection(conn);
+			ResourceCloser.closeStatement(stmt);
+		}
+
+
+	}
+	
+	public static void removeManagerWithAccount(Account account){
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		final String SQL = "delete from managers where account_id = ?";
+		try {
+			conn = ConnectionFactory.getConnection();
+			stmt = conn.prepareStatement(SQL);
+			stmt.setInt(1, account.getAccountId());
+			stmt.executeUpdate();
+
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			ResourceCloser.closeConnection(conn);
+			ResourceCloser.closeStatement(stmt);
+		}
+
+
+	}
+	
 	public static ArrayList<Account> findAllManaged(Customer customer){
 		ArrayList<Account> accounts = new ArrayList();
 		Connection conn = null;
@@ -143,6 +183,38 @@ public class ManagerList {
 			conn = ConnectionFactory.getConnection();
 			stmt = conn.prepareStatement(SQL);
 			stmt.setInt(1, customer.getUserId());
+			set = stmt.executeQuery();
+			while(set.next()) {
+				accounts.add(new Account(
+						set.getInt(1),
+						set.getFloat(2),
+						set.getInt(3)
+					));
+			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			ResourceCloser.closeConnection(conn);
+			ResourceCloser.closeResultSet(set);
+			ResourceCloser.closeStatement(stmt);
+		}
+
+		
+		
+		return accounts;
+	}
+	
+	public static ArrayList<Account> findAllManagedUser(User user){
+		ArrayList<Account> accounts = new ArrayList();
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet set = null;
+		final String SQL = "select accounts.account_id, account_funds, account_owner from managers "
+				+ "join accounts on managers.account_id = accounts.account_id where user_id = ?";
+		try {
+			conn = ConnectionFactory.getConnection();
+			stmt = conn.prepareStatement(SQL);
+			stmt.setInt(1, user.getUserId());
 			set = stmt.executeQuery();
 			while(set.next()) {
 				accounts.add(new Account(

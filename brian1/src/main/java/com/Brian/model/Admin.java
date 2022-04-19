@@ -12,8 +12,19 @@ public class Admin extends Employee{
 		// TODO Auto-generated constructor stub
 	}
 
-	public Admin() {
-		// TODO Auto-generated constructor stub
+	public Admin(int userId, String userName, String password, String firstName, String lastName, String street, String city,
+			String state, int zip, int accessLevel) {
+		super(userId, userName, password, firstName, lastName, street, city, state, zip);
+		this.userId = userId;
+		this.userName = userName;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.street = street;
+		this.city = city;
+		this.state = state;
+		this.zip = zip;
+		this.accessLevel = accessLevel;
 	}
 
 	public int getAccessLevel() {

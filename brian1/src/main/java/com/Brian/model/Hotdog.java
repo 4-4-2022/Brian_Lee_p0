@@ -115,6 +115,23 @@ public class Hotdog {
 		return true;
 	}
 	
+	public Hotdog changePrice(Hotdog hotdog, Float amount) {
+		this.cost = amount;
+		return hotdog;
+	}
+	public Hotdog changeCalories(Hotdog hotdog, int calories) {
+		this.calories = calories;
+		return hotdog;
+	}
+	public Hotdog changeDescription(Hotdog hotdog, String description) {
+		this.description = description;
+		return hotdog;
+	}
+	public Hotdog changeStyle(Hotdog hotdog, String style) {
+		this.hotdogStyle= style;
+		return hotdog;
+	}
+	
 	
 	
 }

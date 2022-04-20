@@ -8,6 +8,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.Brian.respository.HotdogRespositoryImp;
 import com.Brian.util.ConnectionFactory;
 import com.Brian.util.ResourceCloser;
 
@@ -19,6 +23,8 @@ public class Account {
 	protected String ownerUserName;
 	protected String ownerFirstName;
 	protected String ownerLastName;
+	
+	private static final Logger logger = LoggerFactory.getLogger(Account.class);
 	
 	public Account(int funds, int ownerId) {
 		super();
@@ -169,6 +175,7 @@ public class Account {
 			}
 		
 		if (accounts.size() > 0) {
+			logger.info("The retrieved account is:" + accounts.get(0));
 			return accounts.get(0);
 		}
 		else {
@@ -213,7 +220,10 @@ public class Account {
 			System.out.println("No accounts found");
 			return accounts;
 		}
-		else { return accounts;}
+		else { 
+			logger.info("The retrieved accounts are:" + accounts);
+			return accounts;
+			}
 			
 			
 		
@@ -267,6 +277,7 @@ public class Account {
 			ResourceCloser.closeConnection(conn);
 			ResourceCloser.closeStatement(stmt);
 		}
+		logger.info("The closed account is:" + account);
 	}
 	
 	// method for decreasing amount of funds
@@ -301,7 +312,7 @@ public class Account {
 			System.out.println("Account Id: "+account.getAccountId()+" has Insufficient funds");
 			return account;
 		}
-		
+		logger.info(account+ " reduced by " + amount);
 		return account;
 	}
 	
@@ -331,6 +342,7 @@ public class Account {
 				ResourceCloser.closeConnection(conn);
 				ResourceCloser.closeStatement(stmt);
 			}
+			logger.info(account+ " increased by " + amount);
 			return account;
 		}
 
@@ -342,19 +354,30 @@ public class Account {
 			System.out.println("Nothing done, 0 amount was specified.");
 		}
 		else if(amount > 0) {
-			otherAccount.reduceFunds(otherAccount, amount);
-			account.addFunds(account, amount);
-			
+			if(amount <= otherAccount.getFunds()) {
+				otherAccount.reduceFunds(otherAccount, amount);
+				account.addFunds(account, amount);
+			}
+			else {
+				System.out.println("Insufficient Funds!");
+			}
 		}
 		else if (amount < 0) {
-			float absAmount = Math.abs(amount);
-			account.reduceFunds(account, absAmount);
-			otherAccount.addFunds(otherAccount, absAmount);
+			if(amount <= account.getFunds()) {
+				float absAmount = Math.abs(amount);
+				account.reduceFunds(account, absAmount);
+				otherAccount.addFunds(otherAccount, absAmount);
+			}
+			else {
+				System.out.println("Insufficient Funds!");
+			}
+
 		}
 		else {
 			System.out.println("Could not transfer");
 		}
-		
+		logger.info(account+ " transferred " + amount + " to " + otherAccount);
+
 	}
 	// method to add managers
 	public void addManager(Customer customer) {
@@ -365,7 +388,60 @@ public class Account {
 		ManagerList.removeManager(this, customer);
 	}
 	
+	public void addFundsInst(float amount) {
+		if (amount < 0) {
+			System.out.println("Can not add by negative amount");
+		}else {
+			float newAmt = this.getFunds() + amount;
+			this.setFunds(newAmt);
+		}
+		
+	}
 	
+	public void reduceFundsInst(float amount) {
+		if (amount < 0) {
+			System.out.println("Can not reduce by negative amount");
+		}
+		if ( this.getFunds() - amount >= 0 && amount >= 0) {
+			float newAmt = this.getFunds() - amount;
+			this.setFunds(newAmt);
+		}
+		else if(this.funds - amount < 0){
+			System.out.println("Account Id: "+this.getAccountId()+" has Insufficient funds");
+		}
+	}
+	
+	public static void transferFundsInst(Account account, Account otherAccount, float amount) {
+		if(amount == 0 ) {
+			System.out.println("Nothing done, 0 amount was specified.");
+		}
+		else if(amount > 0) {
+			if(amount <= otherAccount.getFunds()) {
+				otherAccount.reduceFundsInst(amount);
+				account.addFundsInst(amount);
+			}
+			else {
+				System.out.println("Insufficient Funds!");
+			}
+
+		}
+		else if (amount < 0) {
+			if(amount <= account.getFunds()) {
+				float absAmount = Math.abs(amount);
+				account.reduceFundsInst(absAmount);
+				otherAccount.addFundsInst(absAmount);
+			}
+			else {
+				System.out.println("Insufficient Funds!");
+			}
+
+		}
+		else {
+			System.out.println("Could not transfer");
+		}
+		logger.info(account+ " transferred " + amount + " to " + otherAccount);
+
+	}
 
 }
 	

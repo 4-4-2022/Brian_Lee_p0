@@ -10,6 +10,7 @@ import com.Brian.model.Customer;
 import com.Brian.model.Employee;
 import com.Brian.model.ManagerList;
 import com.Brian.model.User;
+import com.Brian.service.UserService;
 
 public class AppUIEmployee {
 	public static void printEmployeeMain(User employee) {
@@ -263,37 +264,37 @@ public class AppUIEmployee {
 			case 1:
 				System.out.println("Enter your change:");
 				String username = scanner.nextLine();
-				chosenUser.setUserName(username);
+				chosenUser.setUserName(UserService.trimString(username));
 				break;
 			case 2:
 				System.out.println("Enter your change:");
 				String password = scanner.nextLine();
-				chosenUser.setPassword(password);
+				chosenUser.setPassword(UserService.trimString(password));
 				break;
 			case 3:
 				System.out.println("Enter your change:");
 				String firstName = scanner.nextLine();
-				chosenUser.setFirstName(firstName);
+				chosenUser.setFirstName(UserService.trimString(firstName));
 				break;
 			case 4:
 				System.out.println("Enter your change:");
 				String lastName = scanner.nextLine();
-				chosenUser.setLastName(lastName);
+				chosenUser.setLastName(UserService.trimString(lastName));
 				break;
 			case 5:
 				System.out.println("Enter your change:");
 				String street = scanner.nextLine();
-				chosenUser.setStreet(street);
+				chosenUser.setStreet(UserService.trimString(street));
 				break;
 			case 6:
 				System.out.println("Enter your change:");
 				String city = scanner.nextLine();
-				chosenUser.setCity(city);
+				chosenUser.setCity(UserService.trimString(city));
 				break;
 			case 7:
 				System.out.println("Enter your change:");
 				String state = scanner.nextLine();
-				chosenUser.setState(state);
+				chosenUser.setState(UserService.trimString(state));
 				break;
 			case 8:
 				System.out.println("Enter your change:");

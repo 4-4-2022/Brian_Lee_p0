@@ -378,8 +378,49 @@ public class User {
 					ResourceCloser.closeConnection(conn);
 					ResourceCloser.closeStatement(stmt);
 			}
-		
+	}
 
+	public User changeUserName(String newname) {
+		this.setUserName(newname);
+		return this;
 	}
 	
+	public User changePassword(String password) {
+		this.setPassword(password);
+		return this;
+	}
+	
+	public User changeFirstName(String newname) {
+		this.setFirstName(newname);
+		return this;
+	}
+	
+	public User changeLastName(String newname) {
+		this.setLastName(newname);
+		return this;
+	}
+	
+	public User changeStreet(String street) {
+		this.setStreet(street);
+		return this;
+	}
+	public User changeCity(String city) {
+		this.setCity(city);
+		return this;
+	}
+	
+	public User changeState(String state) {
+		this.setState(state);
+		return this;
+	}
+	
+	public User changeZip(int zip) {
+		this.setZip(zip);
+		return this;
+	}
+	
+	public User changeAccessLevel(int accessLevel) {
+		this.setAccessLevel(accessLevel);
+		return this;
+	}
 }

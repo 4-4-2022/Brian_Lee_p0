@@ -9,12 +9,17 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.Brian.model.Hotdog;
+import com.Brian.service.AccountLogger;
 import com.Brian.util.ConnectionFactory;
 import com.Brian.util.ResourceCloser;
 
 public class HotdogRespositoryImp implements HotdogRepository{
 
+	private static final Logger logger = LoggerFactory.getLogger(HotdogRespositoryImp.class);
 	public ArrayList<Hotdog> findAllHotdogs() {
 		ArrayList<Hotdog> hotdogs = new ArrayList<Hotdog>();
 		
@@ -47,8 +52,7 @@ public class HotdogRespositoryImp implements HotdogRepository{
 			ResourceCloser.closeResultSet(set);
 			ResourceCloser.closeStatement(stmt);
 		}
-
-		
+		logger.info("The retrieved hotdogs are:" + hotdogs);
 		return hotdogs;
 	}
 

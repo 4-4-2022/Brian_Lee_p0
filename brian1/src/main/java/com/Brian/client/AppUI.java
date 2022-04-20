@@ -11,6 +11,7 @@ import com.Brian.model.Hotdog;
 import com.Brian.model.ManagerList;
 import com.Brian.model.User;
 import com.Brian.respository.HotdogRespositoryImp;
+import com.Brian.service.UserService;
 
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -55,6 +56,7 @@ public class AppUI {
 					break;
 				case 2:
 					AppUI.createCustomerAccount(scanner);
+					appStart();
 					break;
 				case 3:
 					AppUI.sayBye();
@@ -90,23 +92,45 @@ public class AppUI {
 	
 	public static int handleUserSelection(Scanner scanner) {
 		int userSelection = 0;
-		try {
-			userSelection = scanner.nextInt();
-		}catch(InputMismatchException e) {
-			System.out.println("Sorry, that is not a valid number.");
+		Boolean isInvalid = true;
+		while(isInvalid) {
+			try {
+				userSelection = scanner.nextInt();
+				isInvalid = false;
+			}catch(InputMismatchException e) {
+				System.out.println("Sorry, that is not a valid number. Please try again.");
+			}
+			scanner.nextLine(); 
 		}
-		scanner.nextLine(); 
+		return userSelection;
+	}
+	public static int handleUserSelection(Scanner scanner, int num) {
+		int userSelection = 0;
+		Boolean isInvalid = true;
+		while(isInvalid) {
+			try {
+				userSelection = scanner.nextInt();
+				isInvalid = false;
+			}catch(InputMismatchException e) {
+				System.out.println("Sorry, that is not a valid number. Please try again.");
+			}
+			scanner.nextLine(); 
+		}
 		return userSelection;
 	}
 	public static float handleUserFloat(Scanner scanner) {
-		float userInput = 0;
-		try {
-			userInput = scanner.nextFloat();
-		}catch(InputMismatchException e) {
-			System.out.println("Sorry, that is not a valid number.");
+		float userSelection = 0;
+		Boolean isInvalid = true;
+		while(isInvalid) {
+			try {
+				userSelection = scanner.nextFloat();
+				isInvalid = false;
+			}catch(InputMismatchException e) {
+				System.out.println("Sorry, that is not a valid number. Please try again.");
+			}
+			scanner.nextLine(); 
 		}
-		scanner.nextLine(); 
-		return userInput;
+		return userSelection;
 	}
 	
 	public static User loginUser(Scanner scanner) {
@@ -189,21 +213,21 @@ public class AppUI {
 		Customer customer = new Customer();
 		System.out.println("Enter your new user account information: ");
 		System.out.println("User Name: ");
-		customer.setUserName(scanner.nextLine());
+		customer.setUserName(UserService.trimString(scanner.nextLine()));
 		System.out.println("Password: ");
-		customer.setPassword(scanner.nextLine());
+		customer.setPassword(UserService.trimString(scanner.nextLine()));
 		System.out.println("First Name: ");
-		customer.setFirstName(scanner.nextLine());
+		customer.setFirstName(UserService.trimString(scanner.nextLine()));
 		System.out.println("Last Name: ");
-		customer.setLastName(scanner.nextLine());
+		customer.setLastName(UserService.trimString(scanner.nextLine()));
 		System.out.println("Street Address: ");
-		customer.setStreet(scanner.nextLine());
+		customer.setStreet(UserService.trimString(scanner.nextLine()));
 		System.out.println("City: ");
-		customer.setCity(scanner.nextLine());
+		customer.setCity(UserService.trimString(scanner.nextLine()));
 		System.out.println("State: ");
-		customer.setState(scanner.nextLine());
+		customer.setState(UserService.trimString(scanner.nextLine()));
 		System.out.println("5 digit Zip code: ");
-		customer.setZip(scanner.nextInt());
+		customer.setZip((AppUI.handleUserSelection(scanner, 1)));
 		
 		customer.save(customer);
 
@@ -234,6 +258,9 @@ public class AppUI {
 	
 	public static void printOwnedAccounts(Customer customer, Scanner scanner) {
 		ArrayList<Account> accounts =Customer.findAllOwned(customer);
+		if (accounts.size() == 0) {
+			mainMenu(scanner, customer);
+		}
 		int listNum = 1;
 		System.out.println("Accounts Owned:");
 		for(Account account: accounts) {
@@ -424,16 +451,17 @@ public class AppUI {
 	}
 	public static void orderingHotdogs(Customer customer, Scanner scanner, Account account, ArrayList<Hotdog> hotdogs) {
 		System.out.println("Which Hotdog would you like to purchase? Type in List Number:");
-		int hotdogSelection = handleUserSelection(scanner)-1;
+		int hotdogSelection = handleUserSelection(scanner, 1)-1;
 		if (hotdogSelection+1 > hotdogs.size() || hotdogSelection < 0) {
 			System.out.println("Not a valid number, please try again.");
 		}
 		else {
 			System.out.println("How many would you like?");
-			int quantity = handleUserSelection(scanner);
+			int quantity = handleUserSelection(scanner, 1);
 			if(quantity > 0 ) {
 				float totalCost = hotdogs.get(hotdogSelection).getCost() * quantity;
 				account.reduceFunds(account, totalCost);
+				System.out.println("Thank you for your purchase!");
 				AppUI.orderMenu(customer, scanner, account);
 			}
 			else {
